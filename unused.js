@@ -2,45 +2,36 @@ Shuttle.Unused = new Mongo.Collection('shuttle:unused');
 
 Shuttle.Unused.attachRefs();
 Shuttle.Unused.attachTree();
+Shuttle.Unused.attachSchema(Shuttle.insertedSchema);
 
 Shuttle.Unused.deny({
 	insert: function(userId, _unused) {
-		var unused = Shuttle.Unused._transform(_unused);
-		if (
-			Shuttle.Own.find(unused.source().Ref('_source')).count()
-			||
-			Shuttle.Unused.find(unused.source().Ref('_source')).count()
-		) {
-			return true;
-		}
+		return true;
 	},
 	remove: function(userId, _unused) {
-		var unused = Shuttle.Unused._transform(_unused);
-		if (!Shuttle.Own.find(unused.source().Ref('_source')).count()) {
-			return true;
-		}
+		return true;
 	}
 });
 
 if (Meteor.isServer) {
-	// If own inserted then remove unused.
-	Shuttle.Own.after.insert(function(userId, _own) {
-		var own = Shuttle.Own._transform(_own);
-		var unuseds = Shuttle.Unused.find(own.source().Ref('_source'));
+	// If right inserted then remove unused.
+	Shuttle.Rights.after.insert(function(userId, _right) {
+		var right = Shuttle.Rights._transform(_right);
+		var unuseds = Shuttle.Unused.find(right.source().Ref('_source'));
 		if (unuseds.count()) { // If unused exists
 			unuseds.forEach(function(unused) {
 				Shuttle.Unused.remove(unused._id);
 			});
 		}
 	});
-	// If own removed
-	Shuttle.Own.after.remove(function(userId, _own) {
-		var own = Shuttle.Own._transform(_own);
-		var owns = Shuttle.Own.find(own.source().Ref('_source'));
-		if (!owns.count()) { // If owns no exists
+	// If right removed
+	Shuttle.Rights.after.remove(function(userId, _right) {
+		var right = Shuttle.Rights._transform(_right);
+		var rights = Shuttle.Rights.find(right.source().Ref('_source'));
+		if (!rights.count()) { // If rights no exists
 			Shuttle.Unused.insert({
-				_source: own.source().Ref(),
-				_target: userId ? Meteor.users.findOne(userId).Ref() : own.source().Ref()
+				_source: right.source().Ref(),
+				_target: userId ? Meteor.users.findOne(userId).Ref() : right.source().Ref()
 			});
 		}
 	});

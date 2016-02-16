@@ -2,6 +2,7 @@ Shuttle.Joining = new Mongo.Collection('shuttle:joining');
 
 Shuttle.Joining.attachRefs();
 Shuttle.Joining.attachTree();
+Shuttle.Joining.attachSchema(Shuttle.insertedSchema);
 
 Shuttle.Joining.deny({
 	insert: function(userId, _subject) {

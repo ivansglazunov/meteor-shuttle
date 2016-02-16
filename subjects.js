@@ -2,6 +2,7 @@ Shuttle.Subjects = new Mongo.Collection('shuttle:subjects');
 
 Shuttle.Subjects.attachRefs();
 Shuttle.Subjects.attachTree();
+Shuttle.Subjects.attachSchema(Shuttle.insertedSchema);
 
 if (Meteor.isServer) Shuttle.Subjects.inheritTree(Shuttle.Subjects);
 
@@ -41,3 +42,19 @@ Shuttle.Subjects.deny({
 		throw new Meteor.Error('You are not permitted to remove '+JSON.stringify(subject.Ref()));
 	}
 });
+
+Shuttle.SubjectsIndex = new EasySearch.Index({
+	collection: Meteor.users,
+	fields: ['profile.name'],
+	engine: new EasySearch.Minimongo()
+});
+
+// if (Meteor.isServer) {
+// 	Meteor.users.after.insert(function(userId, _user) {
+// 		var user = Meteor.users._transform(_user);
+// 		Shuttle.Subjects.insert({
+// 			_source: user.Ref(),
+// 			_target: Meteor.users.findOne('guest').Ref()
+// 		});
+// 	});
+// }
