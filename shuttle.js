@@ -15,20 +15,20 @@ if (Meteor.isServer) {
 		
 	Meteor.users.after.insert(function(userId, _user) {
 		var user = Meteor.users._transform(_user);
-		Shuttle.Subjects.link(user, Meteor.users.findOne('user'));
-		Shuttle.Subjects.link(user, Meteor.users.findOne('guest'));
+		Shuttle.Merged.link(user, Meteor.users.findOne('user'));
+		Shuttle.Merged.link(user, Meteor.users.findOne('guest'));
 	});
 	Accounts.onLogin(function(login) {
 		if (login.user && login.type == 'resume') {
 			var user = Meteor.users._transform(login.user);
-			var subject = Shuttle.Subjects.findOne(lodash.merge(
+			var subject = Shuttle.Merged.findOne(lodash.merge(
 				Meteor.users.findOne('guest').Ref('_target'), user.Ref('_source')
 			));
-			if (subject) Shuttle.Subjects.remove(subject._id);
-			var subject = Shuttle.Subjects.findOne(lodash.merge(
+			if (subject) Shuttle.Merged.remove(subject._id);
+			var subject = Shuttle.Merged.findOne(lodash.merge(
 				Meteor.users.findOne('registred').Ref('_target'), user.Ref('_source')
 			));
-			if (!subject) Shuttle.Subjects.link(user, Meteor.users.findOne('registred'));
+			if (!subject) Shuttle.Merged.link(user, Meteor.users.findOne('registred'));
 		}
 	});
 }
