@@ -19,7 +19,7 @@ if (Meteor.isServer) {
 		Shuttle.Subjects.link(user, Meteor.users.findOne('guest'));
 	});
 	Accounts.onLogin(function(login) {
-		if (login.type == 'resume') {
+		if (login.user && login.type == 'resume') {
 			var user = Meteor.users._transform(login.user);
 			var subject = Shuttle.Subjects.findOne(lodash.merge(
 				Meteor.users.findOne('guest').Ref('_target'), user.Ref('_source')
