@@ -15,8 +15,8 @@ if (Meteor.isServer) {
 		
 	Meteor.users.after.insert(function(userId, _user) {
 		var user = Meteor.users._transform(_user);
-		Shuttle.Merged.link(user, Meteor.users.findOne('user'));
-		Shuttle.Merged.link(user, Meteor.users.findOne('guest'));
+		Shuttle.Merged.addLink(user, Meteor.users.findOne('user'));
+		Shuttle.Merged.addLink(user, Meteor.users.findOne('guest'));
 	});
 	Accounts.onLogin(function(login) {
 		if (login.user && login.type == 'resume') {
