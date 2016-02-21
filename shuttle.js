@@ -3,14 +3,16 @@ if (Meteor.isClient) {
 	Template.registerHelper('Meteor', function() { return Meteor; });
 }
 
+Shuttle.History = History;
+
 if (Meteor.isServer) {
-	if (!Meteor.users.findOne({ _id: 'guest' }))
+	if (!Meteor.users.findOne('guest'))
 		Meteor.users.insert({ _id: 'guest' });
 		
-	if (!Meteor.users.findOne({ _id: 'user' }))
+	if (!Meteor.users.findOne('user'))
 		Meteor.users.insert({ _id: 'user' });
 		
-	if (!Meteor.users.findOne({ _id: 'registred' }))
+	if (!Meteor.users.findOne('registred'))
 		Meteor.users.insert({ _id: 'registred' });
 		
 	Meteor.users.after.insert(function(userId, _user) {
@@ -28,7 +30,17 @@ if (Meteor.isServer) {
 			var subject = Shuttle.Merged.findOne(lodash.merge(
 				Meteor.users.findOne('registred').Ref('_target'), user.Ref('_source')
 			));
-			if (!subject) Shuttle.Merged.link(user, Meteor.users.findOne('registred'));
+			if (!subject) Shuttle.Merged.addLink(user, Meteor.users.findOne('registred'));
 		}
 	});
+	Meteor.users.after.insert(function(userId, _user) {
+		var user = Meteor.users._transform(_user);
+		Shuttle.Fetching.addLink(user, user);
+	});
 }
+
+Shuttle.groups = Meteor.users.find({ $or: [
+    { _id: 'guest' },
+    { _id: 'registred' },
+    { _id: 'user' }
+] });
